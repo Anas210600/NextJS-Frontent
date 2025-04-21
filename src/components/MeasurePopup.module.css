@@ -1,0 +1,135 @@
+/* src/components/MeasurePopup.module.css */
+
+/* Optional Overlay */
+/*
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.3);
+  z-index: 1999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+*/
+
+.popupContainer {
+    position: fixed; /* Or absolute relative to contentArea */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 350px; /* Adjust width as needed */
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    z-index: 2000; /* Ensure it's above everything */
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; /* Prevent content spill */
+  }
+  
+  .popupHeader {
+    background-color: #2c3e50; /* Dark blue header */
+    color: white;
+    padding: 12px 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .popupTitle {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 500;
+  }
+  
+  .closeButton {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 5px;
+    line-height: 1; /* Ensure icon aligns well */
+    opacity: 0.8;
+  }
+  .closeButton:hover {
+      opacity: 1;
+  }
+  
+  .popupBody {
+    padding: 20px 25px;
+  }
+  
+  .formGroup {
+    margin-bottom: 15px;
+  }
+  .formGroup:last-child {
+      margin-bottom: 0;
+  }
+  
+  .label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 0.85rem;
+    color: #555;
+    font-weight: 500;
+  }
+  
+  .input {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    box-sizing: border-box; /* Include padding/border in width */
+  }
+  .input:focus {
+      outline: none;
+      border-color: #4a148c; /* Highlight focus */
+      box-shadow: 0 0 0 2px rgba(74, 20, 140, 0.2);
+  }
+  
+  
+  .popupFooter {
+    padding: 15px 25px;
+    border-top: 1px solid #eee;
+    display: flex;
+    justify-content: flex-end; /* Align buttons to the right */
+    gap: 10px;
+    background-color: #f9f9f9; /* Slightly off-white footer */
+  }
+  
+  .button {
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+  }
+  
+  .applyButton {
+    background-color: #4CAF50; /* Green */
+    color: white;
+    border: 1px solid #4CAF50;
+  }
+  .applyButton:hover {
+      background-color: #45a049;
+      border-color: #45a049;
+  }
+  
+  .cancelButton {
+    background-color: #f1f1f1; /* Light grey */
+    color: #444;
+    border: 1px solid #ccc;
+  }
+  .cancelButton:hover {
+      background-color: #e0e0e0;
+      border-color: #bbb;
+  }

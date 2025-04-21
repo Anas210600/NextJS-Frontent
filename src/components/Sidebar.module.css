@@ -1,0 +1,122 @@
+/* src/components/Sidebar.module.css */
+.sidebar {
+    width: 260px; /* Increased width */
+    background-color: #4a148c; /* Dark purple */
+    color: #e0e0e0; /* Light grey text */
+    height: 100vh;
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 1100; /* Ensure it's above map controls */
+    display: flex;
+    flex-direction: column;
+    padding: 0; /* Remove default padding */
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+    transform: translateX(0); /* Start visible */
+    transition: transform 0.3s ease-in-out;
+  }
+  
+  .sidebar.closed {
+    transform: translateX(-100%); /* Slide out */
+  }
+  
+  .sidebarHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Space between logo/title and close button */
+    padding: 15px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1); /* Subtle separator */
+  }
+  
+  .logoContainer {
+    display: flex;
+    align-items: center;
+    gap: 12px; /* Space between logo and title */
+  }
+  
+  .logoIcon {
+    color: #ffa726; /* Orange logo */
+  }
+  
+  .title {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #fff; /* White title */
+  }
+  
+  .closeButton {
+    background: none;
+    border: none;
+    color: #e0e0e0;
+    cursor: pointer;
+    padding: 5px;
+    display: flex; /* Helps center icon if needed */
+    align-items: center;
+    justify-content: center;
+  }
+  .closeButton:hover {
+      color: #fff;
+  }
+  
+  
+  .navList {
+    flex-grow: 1; /* Takes up available space */
+    padding-top: 15px;
+    overflow-y: auto; /* Add scroll if items exceed height */
+  }
+  
+  .navItem {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px; /* Consistent padding */
+    margin: 4px 10px; /* Margin around items */
+    gap: 15px; /* Space between icon and text */
+    cursor: pointer;
+    border-radius: 6px; /* Rounded corners */
+    transition: background-color 0.2s ease, color 0.2s ease;
+    color: #e0e0e0; /* Default text color */
+  }
+  
+  .navItem:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #fff; /* Whiter text on hover */
+  }
+  
+  .navItem.active {
+    background-color: #ffa726; /* Orange background for active */
+    color: #fff; /* White text for active */
+    font-weight: 500;
+  }
+  
+  .navItem.active .navIcon {
+     /* color: #fff; */ /* Icon color can be inherited or set explicitly */
+  }
+  
+  .navIcon {
+    /* Adjust icon alignment if needed */
+    flex-shrink: 0; /* Prevent icon from shrinking */
+  }
+  
+  .navText {
+    font-size: 0.95rem;
+  }
+  
+  
+  .sidebarFooter {
+      margin-top: auto; /* Pushes this item to the bottom */
+      padding-bottom: 15px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1); /* Separator */
+      padding-top: 10px;
+  }
+  
+  /* Optional: Scrollbar styling */
+  .navList::-webkit-scrollbar {
+    width: 5px;
+  }
+  .navList::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+  }
+  .navList::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+  }

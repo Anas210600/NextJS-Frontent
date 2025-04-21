@@ -1,0 +1,197 @@
+/* src/components/Header.module.css */
+.header {
+  height: 60px;
+  background-color: transparent; /* Keep transparent */
+  display: flex;
+  align-items: center; /* Keep vertical alignment */
+  padding: 0 25px;
+  /* --- CHANGE: Justify controls to the end --- */
+  justify-content: flex-end; /* Push .controls to the right */
+  position: absolute; /* Keep absolute positioning */
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1050;
+  gap: 20px;
+  padding-top: 10px; /* Keep vertical padding */
+  /* No need for flex-shrink as it's absolutely positioned */
+}
+
+/* Search Bar Styles - Centered Absolutely */
+.searchContainer {
+  /* --- CHANGE: Position absolutely for centering --- */
+  position: absolute;
+  left: 50%;
+  top: 50%; /* Center vertically relative to header height */
+  transform: translate(-50%, -50%); /* Precise centering */
+  /* ----------------------------------------- */
+
+  /* Keep visual styles */
+  display: flex;
+  align-items: center;
+  background-color: #fff;
+  border: 1px solid #dfe1e5;
+  border-radius: 8px;
+  padding: 0 12px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  width: 350px; /* Keep fixed width (or adjust) */
+  height: 40px; /* Keep fixed height */
+  /* Remove flex-grow as it's absolutely positioned */
+  /* flex-grow: 0; */
+}
+
+.searchContainer:hover {
+  border-color: #ced4da;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.searchIconInternal {
+  color: #80868b;
+  margin-right: 10px;
+  flex-shrink: 0;
+}
+
+.searchInput {
+  border: none;
+  outline: none;
+  background-color: transparent;
+  padding: 8px 0;
+  font-size: 0.95rem;
+  flex-grow: 1;
+  color: #495057;
+}
+.searchInput::placeholder {
+  color: #80868b;
+}
+.searchInput:disabled {
+    background-color: #f8f9fa;
+    cursor: not-allowed;
+}
+.searchSpinner {
+  color: #6c757d;
+  margin-left: 8px;
+  animation: spin 1s linear infinite;
+}
+
+
+/* Right Side Controls - Remain aligned to the right due to header's justify-content: flex-end */
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0; /* Keep this */
+}
+
+/* Icon Button Styles (Bell/Question) - Keep as is */
+.iconButtonWrapper {
+  background-color: #fff;
+  border: 1px solid #dfe1e5;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  padding: 0;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.iconButtonWrapper:hover {
+  background-color: #f8f9fa;
+  border-color: #ced4da;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+.iconButtonIcon {
+  color: #5f6368;
+}
+.notificationBadge {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  width: 7px;
+  height: 7px;
+  background-color: #d93025;
+  border-radius: 50%;
+  border: 1.5px solid white;
+}
+
+
+/* User Icon Styles - Keep as is */
+.userIconWrapper {
+  position: relative;
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: #e8f0fe;
+  border: 1px solid #d2e3fc;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+.userIconWrapper:hover {
+   background-color: #d2e3fc;
+   border-color: #c6dafb;
+   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+}
+.userIcon {
+  color: #1a73e8;
+  display: block;
+}
+.statusIndicator {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 10px;
+  height: 10px;
+  background-color: #34a853;
+  border-radius: 50%;
+  border: 2px solid white;
+}
+
+
+/* Sign In / Login Styles - Keep as is */
+.signInLink {
+  background: none;
+  border: none;
+  color: #5f6368;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding: 8px 10px;
+  margin-left: 5px;
+  border-radius: 4px;
+}
+.signInLink:hover {
+  color: #202124;
+  background-color: #f8f9fa;
+}
+
+.loginButton {
+  background-color: #4a148c;
+  color: white;
+  border: none;
+  padding: 0 20px;
+  height: 36px;
+  line-height: 36px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  margin-left: 8px;
+}
+.loginButton:hover {
+  background-color: #5e35b1;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.25);
+}
+
+/* Spinner Animation - Keep */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
