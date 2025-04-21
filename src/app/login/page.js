@@ -86,7 +86,9 @@ export default function LoginPage() {
          <div className={styles.links}>
             <Link href="/forgot-password" className={styles.link}>Forgot Password?</Link>
             <span className={styles.separator}>|</span>
-            <Link href="/signup" className={styles.link}>Don't have an account? Sign Up</Link>
+            <Link href="/login" className={styles.link}>
+  Already have an account? Sign In
+</Link>
         </div>
       </div>
     </div>

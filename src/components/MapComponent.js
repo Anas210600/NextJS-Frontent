@@ -20,79 +20,59 @@ const AnimatedVehicleMarker = ({ map, path, icon, durationPerSegment = 2000 }) =
     const segmentStartTime = useRef(performance.now()); // Use high-resolution time
 
     const animateMarker = useCallback((timestamp) => {
-        if (!markerRef.current || !path || path.length < 2) {
-            return; // Stop if marker or path is gone
-        }
-
+        if (!markerRef.current || !path || path.length < 2) return;
+    
         const elapsedTime = timestamp - segmentStartTime.current;
-        let progress = Math.min(elapsedTime / durationPerSegment, 1); // Cap progress at 1
-
+        let progress = Math.min(elapsedTime / durationPerSegment, 1);
+    
         const startIndex = currentSegmentIndex.current;
-        const endIndex = (startIndex + 1) % path.length; // Loop back
-
+        const endIndex = (startIndex + 1) % path.length;
+    
         const startLatLng = L.latLng(path[startIndex]);
         const endLatLng = L.latLng(path[endIndex]);
-
-        // Simple linear interpolation
+    
         const interpolatedLat = startLatLng.lat + (endLatLng.lat - startLatLng.lat) * progress;
         const interpolatedLng = startLatLng.lng + (endLatLng.lng - startLatLng.lng) * progress;
-
+    
         markerRef.current.setLatLng([interpolatedLat, interpolatedLng]);
-
-        // --- Optional: Rotate icon ---
-        // Requires calculating bearing between points
-        // const bearing = calculateBearing(startLatLng.lat, startLatLng.lng, endLatLng.lat, endLatLng.lng);
-        // if (markerRef.current.options.rotationAngle !== bearing) {
-        //    markerRef.current.setRotationAngle(bearing); // Needs leaflet-rotatedmarker plugin or custom implementation
-        // }
-        // ---
-
+    
         if (progress < 1) {
-            // Continue animation for the current segment
             animationFrameId.current = requestAnimationFrame(animateMarker);
         } else {
-            // Segment finished, move to the next
-            currentSegmentIndex.current = endIndex; // Move index
-            segmentStartTime.current = timestamp; // Reset start time for new segment
-             // Special case: If start and end index are the same (last point loops to first)
-             // Ensure we start the next animation frame immediately.
-            if (currentSegmentIndex.current === (startIndex + 1) % path.length) {
-                animationFrameId.current = requestAnimationFrame(animateMarker);
-            } else {
-                 // This condition might be redundant if we always loop.
-                 // Needed if we wanted to *stop* at the end.
-                 console.log("Animation loop might stop unexpectedly here - check logic if needed");
-            }
+            currentSegmentIndex.current = endIndex;
+            segmentStartTime.current = timestamp;
+    
+            animationFrameId.current = requestAnimationFrame(animateMarker); // Always loop
         }
-    }, [map, path, icon, durationPerSegment]); // Dependencies for useCallback
+    }, [path, durationPerSegment]);
+    // Dependencies for useCallback
 
     // Effect to setup and cleanup
     useEffect(() => {
         if (!map || !path || path.length < 2) return;
-
-        // Create marker if it doesn't exist
+    
         if (!markerRef.current) {
-            markerRef.current = L.marker(path[0], { icon: icon /* , rotationOrigin: 'center center' // For rotation */ }).addTo(map);
+            markerRef.current = L.marker(path[0], { icon }).addTo(map);
         } else {
-            markerRef.current.setLatLng(path[0]); // Reset position
+            markerRef.current.setLatLng(path[0]);
         }
+    
         currentSegmentIndex.current = 0;
         segmentStartTime.current = performance.now();
-
-        // Start the animation loop
+    
         animationFrameId.current = requestAnimationFrame(animateMarker);
-
-        // Cleanup function
+    
         return () => {
             if (animationFrameId.current) {
-                cancelAnimationFrame(animationFrameId.current); // Stop animation
+                cancelAnimationFrame(animationFrameId.current);
             }
-            if (markerRef.current && map.hasLayer(markerRef.current)) { // Check if layer exists before removing
-                 map.removeLayer(markerRef.current);
+            if (markerRef.current && map.hasLayer(markerRef.current)) {
+                map.removeLayer(markerRef.current);
             }
-             markerRef.current = null; // Clear ref
+            markerRef.current = null;
         };
-    }, [map, path, icon, durationPerSegment, animateMarker]); // Add animateMarker to dependencies
+    }, [map, path, icon, animateMarker]);
+     // Add animateMarker to dependencies
 
     return null; // Component doesn't render direct DOM
 };

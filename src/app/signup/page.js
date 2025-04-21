@@ -153,11 +153,11 @@ export default function SignUpPage() {
           </button>
         </form>
         <div className={styles.links}>
-            {/* Changed Link Text and Target */}
-            <Link href="/login" className={styles.link}>
-              Already have an account? Sign In
-            </Link>
-        </div>
+  <Link href="/login" className={styles.link}>
+    Already have an account? Sign&nbsp;In
+  </Link>
+</div>
+
       </div>
     </div>
   );
