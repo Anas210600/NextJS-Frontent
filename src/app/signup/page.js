@@ -4,14 +4,14 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-// Using the same styles as login for consistency, or create signup.module.css if needed
+// Using the same styles as login for consistency
 import styles from '../login/login.module.css';
 
 export default function SignUpPage() {
-  const [name, setName] = useState(''); // Added name field
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState(''); // Added confirm password
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
@@ -20,144 +20,109 @@ export default function SignUpPage() {
     event.preventDefault();
     setError(''); // Clear previous errors
 
-    // --- Client-Side Validation ---
+    // Client-Side Validation
     if (password !== confirmPassword) {
       setError('Passwords do not match.');
-      return; // Stop submission
+      return;
     }
-    if (password.length < 6) { // Example minimum length
-        setError('Password must be at least 6 characters long.');
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters long.');
+      return;
+    }
+    if (!name.trim()) {
+        setError('Full Name is required.');
         return;
     }
-    // Add other validations (e.g., name not empty) if needed
+    // Basic email format check (optional, backend should validate more thoroughly)
+    if (!/\S+@\S+\.\S+/.test(email)) {
+        setError('Please enter a valid email address.');
+        return;
+    }
     // ---------------------------
 
     setIsSubmitting(true);
-    console.log('Sign Up attempt:', { name, email, password }); // Don't log confirmPassword
+    console.log('Attempting Sign Up via API for:', { name, email }); // Log attempt
 
-    // --- !!! Placeholder for Actual Registration API Call !!! ---
+    // --- Call the Registration API ---
     try {
-      // Example: Replace with your fetch call to the registration endpoint
-      // const response = await fetch('/api/auth/register', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ name, email, password }),
-      // });
-      //
-      // if (!response.ok) {
-      //   const errorData = await response.json();
-      //   throw new Error(errorData.message || 'Sign up failed');
-      // }
-      // const newUser = await response.json();
-      // console.log('Sign up successful:', newUser);
+      const response = await fetch('/api/auth/register', { // Target your API route
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ // Send user data
+            name: name.trim(),
+            email: email.trim().toLowerCase(), // Send consistent casing
+            password: password // Send plain password, backend will hash
+        }),
+      });
 
-      // --- Simulate API call ---
-      await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate network delay
-      // Simulate success - in a real app, the API would handle this
-      console.log('Sign up successful (simulated)');
-      // Redirect to login page after successful signup
-      router.push('/login'); // Or redirect to '/' if API logs them in directly
-      // --- End Placeholder ---
+      const data = await response.json(); // Parse the JSON response body
+
+      if (!response.ok) {
+        // If response status is not 2xx, handle API errors
+        console.error('API Registration Error:', data.message || `Status ${response.status}`);
+        throw new Error(data.message || 'Sign up failed. Please try again.'); // Use message from API if available
+      }
+
+      // --- Sign Up Success ---
+      console.log('Sign up successful:', data.message);
+
+      // Optional: Show a success message before redirecting
+      // alert('Account created successfully! Please log in.');
+
+      // Redirect to login page
+      router.push('/login');
 
     } catch (err) {
-        console.error('Sign Up error:', err);
-        // Display specific errors from API if available, otherwise generic
-        setError(err.message || 'An error occurred during sign up.');
+      // Handle fetch errors or errors thrown from response handling
+      console.error('Sign Up Page Fetch Error:', err);
+      // Display the error message to the user
+      setError(err.message || 'An unexpected error occurred during sign up.');
     } finally {
-        setIsSubmitting(false);
+      // Ensure loading state is turned off regardless of success/failure
+      setIsSubmitting(false);
     }
-    // --- End Actual Registration Placeholder ---
+    // --- End API Call ---
   };
 
+  // --- JSX remains the same ---
   return (
     <div className={styles.pageContainer}>
       <div className={styles.formContainer}>
-        {/* Changed Title */}
         <h1 className={styles.title}>Create Account</h1>
         <form onSubmit={handleSubmit} className={styles.form}>
           {error && <p className={styles.error}>{error}</p>}
-
-          {/* Added Name Field */}
+          {/* Name Input */}
           <div className={styles.formGroup}>
-            <label htmlFor="name" className={styles.label}>
-              Full Name
-            </label>
-            <input
-              type="text"
-              id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              className={styles.input}
-              disabled={isSubmitting}
-            />
+            <label htmlFor="name" className={styles.label}>Full Name</label>
+            <input type="text" id="name" value={name} onChange={(e) => setName(e.target.value)} required className={styles.input} disabled={isSubmitting}/>
           </div>
-
+          {/* Email Input */}
           <div className={styles.formGroup}>
-            <label htmlFor="email" className={styles.label}>
-              Email Address
-            </label>
-            <input
-              type="email"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className={styles.input}
-              disabled={isSubmitting}
-            />
+            <label htmlFor="email" className={styles.label}>Email Address</label>
+            <input type="email" id="email" value={email} onChange={(e) => setEmail(e.target.value)} required className={styles.input} disabled={isSubmitting}/>
           </div>
-
+          {/* Password Input */}
           <div className={styles.formGroup}>
-            <label htmlFor="password" className={styles.label}>
-              Password
-            </label>
-            <input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className={styles.input}
-              disabled={isSubmitting}
-              aria-describedby="passwordHelp" // For accessibility hints
-            />
-             <small id="passwordHelp" style={{ fontSize: '0.75rem', color: '#6c757d', marginTop: '4px' }}>
-                (Minimum 6 characters)
-            </small>
+            <label htmlFor="password" className={styles.label}>Password</label>
+            <input type="password" id="password" value={password} onChange={(e) => setPassword(e.target.value)} required className={styles.input} disabled={isSubmitting} aria-describedby="passwordHelp"/>
+            <small id="passwordHelp" style={{ fontSize: '0.75rem', color: '#6c757d', marginTop: '4px' }}>(Minimum 6 characters)</small>
           </div>
-
-          {/* Added Confirm Password Field */}
+          {/* Confirm Password Input */}
           <div className={styles.formGroup}>
-            <label htmlFor="confirmPassword" className={styles.label}>
-              Confirm Password
-            </label>
-            <input
-              type="password"
-              id="confirmPassword"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-              className={styles.input}
-              disabled={isSubmitting}
-            />
+            <label htmlFor="confirmPassword" className={styles.label}>Confirm Password</label>
+            <input type="password" id="confirmPassword" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required className={styles.input} disabled={isSubmitting}/>
           </div>
-
-          <button
-            type="submit"
-            className={styles.submitButton}
-            disabled={isSubmitting}
-          >
-            {/* Changed Button Text */}
+          {/* Submit Button */}
+          <button type="submit" className={styles.submitButton} disabled={isSubmitting}>
             {isSubmitting ? 'Creating Account...' : 'Sign Up'}
           </button>
         </form>
+        {/* Link to Sign In */}
         <div className={styles.links}>
-  <Link href="/login" className={styles.link}>
-    Already have an account? Sign&nbsp;In
-  </Link>
-</div>
-
+          <Link href="/login" className={styles.link}>Already have an account? Sign In</Link>
+        </div>
       </div>
     </div>
   );
