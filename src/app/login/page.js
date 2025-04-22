@@ -28,6 +28,7 @@ export default function LoginPage() {
 
     // --- API Call to Backend ---
     try {
+      debugger;
       // Send a POST request to the login API endpoint
       const response = await fetch('/api/auth/login', {
         method: 'POST',
