@@ -26,7 +26,7 @@ const MeasurePopup = ({ isOpen, onClose, onApply }) => {
 
   // Don't render if not open
   if (!isOpen) {
-    return null;
+    return null; 
   }
 
   return (

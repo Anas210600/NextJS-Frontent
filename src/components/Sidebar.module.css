@@ -1,7 +1,7 @@
 /* src/components/Sidebar.module.css */
 .sidebar {
     width: 260px; /* Increased width */
-    background-color: #4a148c; /* Dark purple */
+    background-color: black; /* Black */
     color: #e0e0e0; /* Light grey text */
     height: 100vh;
     position: fixed;
