@@ -1,172 +1,195 @@
 // src/components/MapComponent.js
-'use client';
+'use client'; // Essential: Ensures this runs only on the client
 
-import React, { useEffect, useRef, useCallback } from 'react'; // Added useCallback
-import { MapContainer, TileLayer, useMap } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
-import L from 'leaflet';
+import React, { useEffect, useRef, useCallback } from 'react';
+import { MapContainer, TileLayer, useMap } from 'react-leaflet'; // Import necessary components/hooks
+import 'leaflet/dist/leaflet.css'; // Import Leaflet's CSS
+import L from 'leaflet'; // Import Leaflet library itself
 
-// --- Custom Icons (Keep as before) ---
-const carIcon = L.icon({ iconUrl: '/icons/car.png', iconSize: [38, 38], iconAnchor: [19, 38], popupAnchor: [0, -38] });
-const bikeIcon = L.icon({ iconUrl: '/icons/bike.png', iconSize: [30, 30], iconAnchor: [15, 30], popupAnchor: [0, -30] });
-const truckIcon = L.icon({ iconUrl: '/icons/truck.png', iconSize: [45, 45], iconAnchor: [22, 45], popupAnchor: [0, -45] });
+// --- Leaflet Default Icon Fix for Webpack/Next.js ---
+// This prevents issues where default marker icons might not load correctly.
+// Include this even if you only use custom icons for good measure.
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+    iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+    iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+});
+// --- End Icon Fix ---
+
+
+// --- Define Custom Icons ---
+// Ensure these image paths correctly point to files in your `public/icons/` directory
+const carIcon = L.icon({
+    iconUrl: '/icons/car.png',
+    iconSize: [38, 38],
+    iconAnchor: [19, 38], // Bottom center
+    popupAnchor: [0, -38]
+});
+const bikeIcon = L.icon({
+    iconUrl: '/icons/bike.png',
+    iconSize: [30, 30],
+    iconAnchor: [15, 30], // Bottom center
+    popupAnchor: [0, -30]
+});
+const truckIcon = L.icon({
+    iconUrl: '/icons/truck.png',
+    iconSize: [45, 45],
+    iconAnchor: [22, 45], // Bottom center
+    popupAnchor: [0, -45]
+});
 // --- End Custom Icons ---
 
-// --- Smoother Marker Animation Component ---
-const AnimatedVehicleMarker = ({ map, path, icon, durationPerSegment = 2000 }) => { // duration in ms
-    const markerRef = useRef(null);
-    const animationFrameId = useRef(null);
-    const currentSegmentIndex = useRef(0);
-    const segmentStartTime = useRef(performance.now()); // Use high-resolution time
+// --- Animated Marker Component ---
+// Handles the animation logic for a single vehicle marker
+const AnimatedVehicleMarker = ({ map, path, icon, durationPerSegment = 2000 }) => {
+    const markerRef = useRef(null); // Reference to the Leaflet marker instance
+    const animationFrameId = useRef(null); // Stores the ID from requestAnimationFrame
+    const currentSegmentIndex = useRef(0); // Index of the current path segment start
+    const segmentStartTime = useRef(performance.now()); // High-resolution timestamp for animation start
 
+    // The animation function using requestAnimationFrame for smoothness
     const animateMarker = useCallback((timestamp) => {
+        // Ensure marker and path are valid before proceeding
         if (!markerRef.current || !path || path.length < 2) {
-            return; // Stop if marker or path is gone
+            cancelAnimationFrame(animationFrameId.current); // Stop animation if invalid
+            return;
         }
 
+        // Calculate time elapsed in the current segment and progress (0 to 1)
         const elapsedTime = timestamp - segmentStartTime.current;
-        let progress = Math.min(elapsedTime / durationPerSegment, 1); // Cap progress at 1
+        let progress = Math.min(elapsedTime / durationPerSegment, 1); // Clamp progress between 0 and 1
 
+        // Determine the start and end points of the current path segment
         const startIndex = currentSegmentIndex.current;
-        const endIndex = (startIndex + 1) % path.length; // Loop back
+        const endIndex = (startIndex + 1) % path.length; // Loop back to the start index if at the end
 
         const startLatLng = L.latLng(path[startIndex]);
         const endLatLng = L.latLng(path[endIndex]);
 
-        // Simple linear interpolation
+        // Linear interpolation to find the marker's current position
         const interpolatedLat = startLatLng.lat + (endLatLng.lat - startLatLng.lat) * progress;
         const interpolatedLng = startLatLng.lng + (endLatLng.lng - startLatLng.lng) * progress;
 
+        // Update the marker's position on the map
         markerRef.current.setLatLng([interpolatedLat, interpolatedLng]);
 
-        // --- Optional: Rotate icon ---
-        // Requires calculating bearing between points
-        // const bearing = calculateBearing(startLatLng.lat, startLatLng.lng, endLatLng.lat, endLatLng.lng);
-        // if (markerRef.current.options.rotationAngle !== bearing) {
-        //    markerRef.current.setRotationAngle(bearing); // Needs leaflet-rotatedmarker plugin or custom implementation
-        // }
-        // ---
-
+        // Check if the animation for the current segment is ongoing
         if (progress < 1) {
-            // Continue animation for the current segment
+            // Request the next frame
             animationFrameId.current = requestAnimationFrame(animateMarker);
         } else {
-            // Segment finished, move to the next
-            currentSegmentIndex.current = endIndex; // Move index
-            segmentStartTime.current = timestamp; // Reset start time for new segment
-             // Special case: If start and end index are the same (last point loops to first)
-             // Ensure we start the next animation frame immediately.
-            if (currentSegmentIndex.current === (startIndex + 1) % path.length) {
-                animationFrameId.current = requestAnimationFrame(animateMarker);
-            } else {
-                 // This condition might be redundant if we always loop.
-                 // Needed if we wanted to *stop* at the end.
-                 console.log("Animation loop might stop unexpectedly here - check logic if needed");
-            }
+            // Segment finished, move to the next segment
+            currentSegmentIndex.current = endIndex; // Update the starting index for the next segment
+            segmentStartTime.current = timestamp; // Reset the start time for the new segment
+            // Immediately request the next frame to start the new segment without delay
+            animationFrameId.current = requestAnimationFrame(animateMarker);
         }
-    }, [map, path, icon, durationPerSegment]); // Dependencies for useCallback
+    }, [map, path, icon, durationPerSegment]); // Dependencies for the animation callback
 
-    // Effect to setup and cleanup
+    // Effect hook to set up and tear down the marker and animation
     useEffect(() => {
+        // Don't run if map or path is invalid
         if (!map || !path || path.length < 2) return;
 
-        // Create marker if it doesn't exist
+        // Create the Leaflet marker only if it doesn't exist yet
         if (!markerRef.current) {
-            markerRef.current = L.marker(path[0], { icon: icon /* , rotationOrigin: 'center center' // For rotation */ }).addTo(map);
+            console.log(`Creating marker with icon: ${icon.options.iconUrl}`);
+            markerRef.current = L.marker(path[0], { icon: icon }).addTo(map);
         } else {
-            markerRef.current.setLatLng(path[0]); // Reset position
+            markerRef.current.setLatLng(path[0]); // Reset position if path changes
         }
+
+        // Initialize animation state
         currentSegmentIndex.current = 0;
         segmentStartTime.current = performance.now();
 
         // Start the animation loop
+        cancelAnimationFrame(animationFrameId.current); // Cancel any previous frame request
         animationFrameId.current = requestAnimationFrame(animateMarker);
 
-        // Cleanup function
+        // Cleanup function: Runs when the component unmounts or dependencies change
         return () => {
+            // Stop the animation frame loop
             if (animationFrameId.current) {
-                cancelAnimationFrame(animationFrameId.current); // Stop animation
+                cancelAnimationFrame(animationFrameId.current);
             }
-            if (markerRef.current && map.hasLayer(markerRef.current)) { // Check if layer exists before removing
+            // Remove the marker from the map if it exists
+            if (markerRef.current && map.hasLayer(markerRef.current)) {
                  map.removeLayer(markerRef.current);
             }
-             markerRef.current = null; // Clear ref
+            // Clear the reference
+            markerRef.current = null;
         };
-    }, [map, path, icon, durationPerSegment, animateMarker]); // Add animateMarker to dependencies
+    }, [map, path, icon, durationPerSegment, animateMarker]); // Effect dependencies
 
-    return null; // Component doesn't render direct DOM
+    return null; // This component manages Leaflet objects directly, doesn't render React DOM
 };
-// --- End Smoother Animation Component ---
+// --- End Animated Marker Component ---
 
 
-// --- Main Map Component (Structure remains similar) ---
+// --- Main Map Component Definition ---
 const MapComponent = ({ whenReady, showVehicles, vehiclePaths }) => {
+    // Default map center coordinates
     const position = [24.8607, 67.0011];
-    // const mapInstanceRef = useRef(null); // Keep if needed for other features, but not strictly for whenReady now
 
-    // Inner component to easily access map instance via useMap hook
+    // --- Inner Component: VehicleLayer ---
+    // This component exists to easily access the map instance using the useMap hook
+    // and render markers conditionally based on props passed to MapComponent.
     const VehicleLayer = () => {
-        const map = useMap();
+        const map = useMap(); // Get the Leaflet map instance from the parent MapContainer context
 
+        // Effect to pass the map instance up to the parent (Home component)
         useEffect(() => {
-            // Store map instance if needed externally (e.g., for zoom)
             if (map && whenReady) {
-                 whenReady(map);
+                console.log("VehicleLayer: Map instance available, calling whenReady.");
+                whenReady(map); // Call the callback prop with the map instance
             }
-        }, [map]); // Run only when map instance changes
+        // Only run when the map instance itself changes (or whenReady function changes)
+        }, [map, whenReady]);
 
-        // Log props received by VehicleLayer
-        console.log("VehicleLayer rendering. showVehicles:", showVehicles, "vehiclePaths:", !!vehiclePaths);
-
+        // Conditionally render nothing if vehicles shouldn't be shown
         if (!showVehicles || !vehiclePaths) {
-            console.log("VehicleLayer: Not rendering vehicles.");
-            return null; // Don't render vehicles if not requested
+            return null;
         }
 
-        console.log("VehicleLayer: Rendering vehicles...");
+        // Render the animated markers for each vehicle type if data exists
         return (
             <>
-                {/* Render an animated marker for each vehicle path */}
                 {vehiclePaths.car && vehiclePaths.car.length > 1 && (
-                    <AnimatedVehicleMarker map={map} path={vehiclePaths.car} icon={carIcon} durationPerSegment={3000} /> // 3 seconds per segment
+                    <AnimatedVehicleMarker map={map} path={vehiclePaths.car} icon={carIcon} durationPerSegment={3000} />
                 )}
                 {vehiclePaths.bike && vehiclePaths.bike.length > 1 && (
-                    <AnimatedVehicleMarker map={map} path={vehiclePaths.bike} icon={bikeIcon} durationPerSegment={1500} /> // 1.5 seconds per segment
+                    <AnimatedVehicleMarker map={map} path={vehiclePaths.bike} icon={bikeIcon} durationPerSegment={1500} />
                 )}
                  {vehiclePaths.truck && vehiclePaths.truck.length > 1 && (
-                    <AnimatedVehicleMarker map={map} path={vehiclePaths.truck} icon={truckIcon} durationPerSegment={4000} /> // 4 seconds per segment
+                    <AnimatedVehicleMarker map={map} path={vehiclePaths.truck} icon={truckIcon} durationPerSegment={4000} />
                 )}
             </>
         );
     };
+    // --- End VehicleLayer Component ---
 
-
+    // --- Render the MapContainer ---
     return (
         <MapContainer
-            center={position}
-            zoom={13}
-            scrollWheelZoom={true}
-            style={{ height: '100%', width: '100%' }}
+            center={position} // Initial map center
+            zoom={13}          // Initial zoom level
+            scrollWheelZoom={true} // Allow zooming with scroll wheel
+            style={{ height: '100%', width: '100%' }} // ** Crucial: Ensure container has dimensions **
         >
+            {/* Base Tile Layer (e.g., OpenStreetMap) */}
             <TileLayer
                 attribution='© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" // Standard OSM tile URL
             />
+
+            {/* Render the VehicleLayer component, which handles conditional markers/animation */}
             <VehicleLayer />
+
         </MapContainer>
     );
 };
 
-export default MapComponent;
+export default MapComponent; // Export the main component
 
-// Optional Helper for Rotation (needs leaflet-rotatedmarker or similar)
-// function calculateBearing(lat1, lon1, lat2, lon2) {
-//   const dLon = (lon2 - lon1) * Math.PI / 180;
-//   lat1 = lat1 * Math.PI / 180;
-//   lat2 = lat2 * Math.PI / 180;
-//   const y = Math.sin(dLon) * Math.cos(lat2);
-//   const x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLon);
-//   let brng = Math.atan2(y, x) * 180 / Math.PI;
-//   brng = (brng + 360) % 360; // Normalize to 0-360
-//   return brng;
-// }

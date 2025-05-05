@@ -1,0 +1,426 @@
+/* src/components/InfoPanel.module.css */
+
+/* ============================================= */
+/* Main Panel Container & Visibility             */
+/* ============================================= */
+.panelContainer {
+  position: fixed; /* Stay fixed relative to viewport */
+  top: 0;
+  right: -400px; /* Start off-screen (adjust width + extra if needed) */
+  width: 380px; /* Width of the panel */
+  height: 100vh; /* Full viewport height */
+  background-color: #ffffff; /* White background */
+  box-shadow: -3px 0 12px rgba(0, 0, 0, 0.15); /* Drop shadow on the left */
+  z-index: 1040; /* Stacking order (adjust as needed) */
+  transition: right 0.35s ease-in-out; /* Slide animation */
+  display: flex;
+  flex-direction: column; /* Stack header and content */
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; /* Standard font stack */
+  font-size: 0.875rem; /* Base font size (14px) */
+  color: #343a40; /* Default text color */
+  border-left: 1px solid #e9ecef; /* Subtle border */
+}
+
+.panelContainer.visible {
+  right: 0; /* Slide into view */
+}
+
+/* ============================================= */
+/* Sticky Panel Header                          */
+/* ============================================= */
+.panelHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 15px;
+  background-color: #f8f9fa; /* Light grey header */
+  border-bottom: 1px solid #dee2e6; /* Separator line */
+  flex-shrink: 0; /* Prevent header from shrinking */
+  position: sticky; /* Stick to top during scroll */
+  top: 0;
+  z-index: 10; /* Above scrolling content */
+}
+.headerLeft, .headerRight {
+  display: flex;
+  align-items: center;
+  gap: 8px; /* Space between header buttons */
+}
+.headerButton, .headerButtonClose {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #6c757d; /* Icon color */
+  padding: 6px;
+  line-height: 1;
+  border-radius: 4px;
+  font-size: 1rem; /* Icon size */
+  transition: color 0.2s ease, background-color 0.2s ease;
+}
+.headerButton:hover, .headerButtonClose:hover {
+  color: #343a40; /* Darker icon on hover */
+  background-color: #e9ecef; /* Subtle background */
+}
+.headerButtonClose {
+  font-size: 1.2rem; /* Slightly larger close icon */
+}
+
+/* ============================================= */
+/* Scrollable Content Area                      */
+/* ============================================= */
+.panelContent {
+  flex-grow: 1; /* Take remaining vertical space */
+  overflow-y: auto; /* Enable vertical scrolling for content */
+  padding: 15px; /* Padding around all content sections */
+}
+
+/* ============================================= */
+/* General Card Styling                         */
+/* ============================================= */
+.infoCard {
+  background-color: #fff;
+  border-radius: 6px;
+  border: 1px solid #e9ecef; /* Lighter border for cards */
+  margin-bottom: 15px; /* Space between cards */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); /* Subtle shadow */
+  overflow: hidden; /* Ensure rounded corners clip content */
+}
+.infoCard:last-child {
+  margin-bottom: 0; /* No margin below the last card */
+}
+
+/* Card Header (Used by multiple cards like Activity, Speed, etc.) */
+.cardHeader {
+  display: flex;
+  align-items: center;
+  font-weight: 600;
+  padding: 10px 15px;
+  color: #495057;
+  font-size: 0.95rem;
+  border-bottom: 1px solid #eee;
+  background-color: #f8f9fa; /* Light background for card headers */
+}
+.cardTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px; /* Space between icon and title text */
+  flex-grow: 1;
+}
+.sectionIcon { /* Icon used in card titles */
+  font-size: 1.1rem;
+  color: #6c757d;
+  width: 20px; /* Consistent width for alignment */
+  text-align: center;
+  flex-shrink: 0;
+}
+.refreshButton { /* Refresh icon button */
+  margin-left: auto; /* Push to the right */
+  background: none;
+  border: none;
+  color: #6c757d;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 5px;
+  line-height: 1;
+}
+.refreshButton:hover { color: #343a40; }
+
+/* Simple Row Layout (Used in Alert, DMS) */
+.cardBodyRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center; /* Vertically align */
+    padding: 8px 15px;
+    font-size: 0.875rem;
+    border-bottom: 1px solid #f1f1f1; /* Light separator */
+}
+.cardBodyRow:last-child { border-bottom: none; }
+.valueHighlight { /* Specific value styling */
+    font-weight: bold;
+    color: #dc3545; /* Example: Red highlight */
+}
+
+/* Generic 2-Column Grid Layout (GPS, Network, Driver Info, etc.) */
+.gridDetails {
+    display: grid;
+    grid-template-columns: auto 1fr; /* Label auto-width, value takes rest */
+    gap: 8px 15px; /* Row gap, Column gap */
+    padding: 15px;
+    font-size: 0.85rem; /* Default text size */
+}
+.gridDetails > div:nth-child(odd) { /* Label column style */
+    color: #6c757d; /* Grey label text */
+    text-align: left;
+    white-space: nowrap; /* Prevent label wrapping */
+    padding-right: 10px; /* Ensure space even if value is short */
+}
+.gridDetails > div:nth-child(even) { /* Value column style */
+    font-weight: 500; /* Slightly bolder value */
+    color: #343a40; /* Darker value text */
+    text-align: right; /* Align values to the right */
+    word-break: break-all; /* Allow long values to wrap */
+}
+
+/* Generic Card Button (Add Alert, Add Job, Add Document, etc.) */
+.cardButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px; /* Space between icon and text */
+    width: calc(100% - 30px); /* Full width minus horizontal padding */
+    margin: 15px; /* Margin above/below and centered horizontally */
+    padding: 10px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 0.9rem;
+    text-align: center;
+    transition: background-color 0.2s ease;
+    border: none;
+}
+/* Button Color Variants */
+.orangeButton { background-color: #fd7e14; color: white; }
+.orangeButton:hover { background-color: #e86a0c; }
+.greyButton { background-color: #6c757d; color: white; }
+.greyButton:hover { background-color: #5a6268; }
+
+/* Button spanning full width inside a card */
+.fullWidthButton {
+    width: calc(100% - 30px);
+    margin: 15px;
+    justify-content: space-between; /* Specific for Immobilize button */
+    font-size: 1rem;
+}
+.buttonArrow { font-weight: bold; } /* Arrow on Immobilize button */
+
+/* Button Group in Footer (Expense Card) */
+.cardFooterButtons {
+    display: flex;
+    gap: 10px; /* Space between buttons */
+    padding: 10px 15px; /* Padding inside footer */
+    border-top: 1px solid #eee; /* Separator line */
+    background-color: #f8f9fa; /* Light background */
+}
+.cardFooterButtons > .cardButton { /* Adjust buttons within footer */
+    width: auto; /* Don't force full width */
+    flex-grow: 1; /* Allow buttons to share space */
+    margin: 0; /* Remove default margin */
+    font-size: 0.85rem; /* Smaller font */
+    padding: 8px 10px; /* Smaller padding */
+}
+
+/* ============================================= */
+/* Vehicle Info Card Styles                     */
+/* ============================================= */
+.vehicleInfo {
+  display: flex;
+  /* padding: 15px; <- Now in panelContent */
+  border-bottom: 1px solid #dee2e6;
+  gap: 15px;
+  margin-bottom: 15px; /* Space below section */
+  padding-bottom: 15px; /* Space above border */
+}
+.vehicleDetails { flex-grow: 1; }
+.vehicleType { font-weight: 600; color: #495057; margin-bottom: 8px; font-size: 1.1rem; }
+.plateContainer { margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
+.plateNumber { background-color: #e9ecef; padding: 4px 10px; border-radius: 4px; font-weight: bold; font-size: 0.95rem; border: 1px solid #ced4da; color: #495057; white-space: nowrap; }
+.status { font-size: 0.7rem; padding: 3px 8px; border-radius: 15px; color: white; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; display: inline-block; line-height: 1.2; flex-shrink: 0; }
+.stop { background-color: #dc3545; }
+.running { background-color: #28a745; }
+.idle { background-color: #ffc107; color: #333; }
+.inactive { background-color: #6c757d; }
+
+.tripInfo, .driverInfo, .detailsLink { font-size: 0.85rem; color: #6c757d; margin-bottom: 6px; line-height: 1.4; }
+.tripValue, .driverValue { font-weight: 600; color: #343a40; }
+.odometer { display: flex; gap: 2px; margin-bottom: 10px; }
+.odoDigit { background-color: #343a40; color: white; padding: 4px 6px; border-radius: 3px; font-family: 'Courier New', Courier, monospace; font-weight: bold; font-size: 0.9rem; line-height: 1; text-align: center; min-width: 1em; box-sizing: border-box; }
+.detailsLink { cursor: pointer; color: #0d6efd; display: inline-flex; align-items: center; margin-top: 5px; }
+.detailsLink:hover { text-decoration: underline; }
+
+.vehicleImageContainer { flex-shrink: 0; width: 130px; display: flex; align-items: center; justify-content: center; padding-left: 10px; }
+.vehicleImage { max-width: 100%; max-height: 100px; height: auto; object-fit: contain; display: block; }
+
+/* ============================================= */
+/* Action Buttons Bar                           */
+/* ============================================= */
+.actionButtons {
+  display: flex;
+  justify-content: space-around;
+  padding: 10px 0;
+  border-bottom: 1px solid #dee2e6;
+  background-color: #f8f9fa;
+  margin: 0 -15px 15px -15px; /* Extend bg, add margin below */
+  padding-left: 15px;
+  padding-right: 15px;
+}
+.actionButton {
+  background: none; border: none; color: #fd7e14; font-size: 1.35rem;
+  cursor: pointer; padding: 8px; transition: color 0.2s ease;
+  display: flex; align-items: center; justify-content: center;
+}
+.actionButton:hover { color: #e86a0c; }
+
+/* ============================================= */
+/* Location / Geofence Card                     */
+/* ============================================= */
+.locationSection {
+    /* padding: 15px; <- In panelContent */
+    border-bottom: 1px solid #dee2e6;
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+}
+.locationItem { display: flex; align-items: flex-start; margin-bottom: 15px; gap: 10px; }
+.locationItem:last-of-type { margin-bottom: 10px; }
+.locationIcon { color: #fd7e14; font-size: 1.2rem; flex-shrink: 0; width: 20px; text-align: center; padding-top: 3px; }
+.locationText { flex-grow: 1; font-size: 0.85rem; line-height: 1.4; }
+.locationLabel { display: block; color: #6c757d; margin-bottom: 2px; font-size: 0.75rem; }
+.locationCoords { font-weight: 500; color: #343a40; word-break: break-all; }
+.copyButton {
+    font-size: 0.8rem; padding: 4px; border: 1px solid #ced4da; background-color: #e9ecef;
+    color: #6c757d; border-radius: 4px; cursor: pointer; margin-left: 5px; flex-shrink: 0; transition: all 0.2s ease;
+}
+.copyButton:hover:not(:disabled) { background-color: #dee2e6; color: #343a40; border-color: #adb5bd; }
+.copyButton:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.locationActions { margin-top: 10px; display: flex; justify-content: flex-start; gap: 8px; }
+.locationActionButton {
+    background-color: #fd7e14; color: white; border: none; width: 30px; height: 30px; border-radius: 4px;
+    display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.9rem; transition: background-color 0.2s ease;
+}
+.locationActionButton:hover { background-color: #e86a0c; }
+
+/* ============================================= */
+/* Activity Card Styles                         */
+/* ============================================= */
+.activitySection {
+    /* padding: 15px; <- In panelContent */
+    border-bottom: 1px solid #dee2e6;
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+}
+.activityBody { display: flex; gap: 20px; align-items: center; margin-bottom: 15px; }
+.activityChart { flex-shrink: 0; width: 110px; height: 110px; display: flex; align-items: center; justify-content: center; }
+.chartPlaceholder {
+    width: 100%; height: 100%; border: 2px dashed #ced4da; border-radius: 50%; display: flex;
+    align-items: center; justify-content: center; color: #adb5bd; font-size: 0.8rem;
+    background-color: #f8f9fa; text-align: center; padding: 5px;
+}
+.activityLegend { flex-grow: 1; }
+.legendItem { display: flex; align-items: center; font-size: 0.85rem; margin-bottom: 8px; color: #495057; }
+.dot { width: 12px; height: 12px; border-radius: 50%; margin-right: 8px; flex-shrink: 0; border: 1px solid rgba(0,0,0,0.1); }
+/* Use colors defined earlier */
+.work { background-color: #0d6efd; } /* Example blue */
+.time { margin-left: auto; font-weight: 500; color: #343a40; font-size: 0.85rem; }
+
+.showLogButton {
+    width: 100%; padding: 10px 15px; background-color: #fd7e14; color: white; border: none;
+    border-radius: 4px; cursor: pointer; font-weight: 500; font-size: 0.95rem; text-align: center;
+    transition: background-color 0.2s ease; margin-top: 5px;
+}
+.showLogButton:hover { background-color: #e86a0c; }
+
+/* ============================================= */
+/* Speed Card Styles                            */
+/* ============================================= */
+.speedSection {
+    /* padding: 15px; <- In panelContent */
+    border-bottom: 1px solid #dee2e6; /* Separator */
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+}
+.speedDetails { font-size: 0.85rem; line-height: 1.8; color: #495057; }
+.speedDetails > div { margin-bottom: 4px; display: flex; justify-content: space-between; }
+.speedDetails > div:last-child { margin-bottom: 0; }
+.speedValue { font-weight: 600; color: #212529; margin-left: 5px; }
+
+/* ============================================= */
+/* Fuel Card Styles                             */
+/* ============================================= */
+.fuelGaugeArea { padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100px; }
+.gaugePlaceholder { border: 2px dashed #ccc; color: #aaa; padding: 20px; border-radius: 8px; text-align: center; }
+
+/* ============================================= */
+/* Temperature Card Styles                      */
+/* ============================================= */
+.temperatureDisplay { display: flex; align-items: center; justify-content: center; gap: 15px; padding: 20px 15px; text-align: center; }
+.tempIconLarge { font-size: 3rem; color: #ffc107; }
+.tempValueLarge { font-size: 2.5rem; font-weight: 300; color: #343a40; }
+.minMaxTemp { display: flex; justify-content: space-between; padding: 0 15px 15px 15px; font-size: 0.85rem; color: #6c757d; }
+
+/* ============================================= */
+/* Job Card Styles (uses general card styles)    */
+/* ============================================= */
+
+/* ============================================= */
+/* Near By Card Styles                          */
+/* ============================================= */
+.nearbyText { padding: 15px; font-size: 0.9rem; color: #495057; }
+
+/* ============================================= */
+/* GPS/Network/Driver/Device/Object Cards       */
+/* ============================================= */
+/* These primarily use the .gridDetails style */
+
+/* ============================================= */
+/* Expense Card Styles                          */
+/* ============================================= */
+.expenseValue { font-size: 1.1rem; font-weight: bold; color: #dc3545; }
+
+/* ============================================= */
+/* Documents Card Styles                        */
+/* ============================================= */
+.noRecord { padding: 20px 15px; text-align: center; color: #6c757d; font-style: italic; }
+.documentList { padding: 10px 15px; /* Add styles for list items here */ }
+
+/* ============================================= */
+/* Work Efficiency Card Styles                  */
+/* ============================================= */
+.workEfficiencyValue { font-size: 1.1rem; font-weight: bold; color: #0d6efd; }
+
+/* ============================================= */
+/* DMS / Toll Card Styles                       */
+/* ============================================= */
+/* These use .cardBodyRow or .noRecord */
+
+/* ============================================= */
+/* Battery Level Card Styles                    */
+/* ============================================= */
+.batteryGraphicArea { padding: 20px 15px; display: flex; justify-content: center; }
+.batteryPlaceholder {
+    width: 150px; height: 60px; border: 3px solid #343a40; border-radius: 8px; position: relative;
+    display: flex; align-items: center; justify-content: center; font-weight: bold; color: #343a40;
+    font-size: 1.1rem; background-color: #e9ecef; overflow: hidden;
+}
+.batteryPlaceholder::before {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+    width: var(--battery-level, 0%); /* Use CSS variable for level */
+    background-color: #28a745; transition: width 0.5s ease;
+}
+.batteryPlaceholder::after { /* Battery cap */
+    content: ''; position: absolute; right: -8px; top: 15px; bottom: 15px;
+    width: 5px; background-color: #343a40; border-radius: 0 3px 3px 0;
+}
+
+/* ============================================= */
+/* Reminder Card Styles                         */
+/* ============================================= */
+.reminderBody { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 10px; padding: 15px; text-align: center; }
+.reminderItem span { display: block; }
+.reminderItem span:first-child { font-size: 0.8rem; color: #6c757d; margin-bottom: 2px; }
+.reminderValue { font-size: 1.5rem; font-weight: bold; color: #343a40; }
+.reminderBell { position: relative; color: #ffc107; /* Yellow bell */ }
+.reminderBadge {
+    position: absolute; top: -5px; right: -5px; background-color: #dc3545; color: white; border-radius: 50%;
+    width: 18px; height: 18px; font-size: 0.7rem; font-weight: bold; display: flex; align-items: center;
+    justify-content: center; line-height: 1; border: 1px solid white;
+}
+/* Style for Upcoming item spanning full width */
+.reminderBody > .reminderItem:nth-of-type(3) { grid-column: 1 / -1; margin-top: 10px; border-top: 1px solid #eee; padding-top: 10px; }
+
+
+/* ============================================= */
+/* Scrollbar Styling (Optional - WebKit)        */
+/* ============================================= */
+.panelContainer::-webkit-scrollbar { width: 6px; }
+.panelContainer::-webkit-scrollbar-thumb { background: #ced4da; border-radius: 3px; }
+.panelContainer::-webkit-scrollbar-thumb:hover { background: #adb5bd; }
+.panelContainer::-webkit-scrollbar-track { background: #f1f1f1; }

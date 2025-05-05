@@ -1,4 +1,19 @@
 /* src/app/globals.css */
+/* --- Shared Variables (Optional, but good practice) --- */
+:root {
+  --control-bg-color: #383838; /* Slightly lighter dark grey than #333 */
+  --control-icon-color: #ffffff;
+  --control-hover-bg-color: #505050;
+  --control-active-bg-color: #282828;
+  --control-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+  --control-hover-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
+  --control-active-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+  --zoom-container-radius: 8px; /* More rounded corners for zoom container */
+  --separator-color: #606060; /* Separator line color */
+}
+
+
+
 body {
   margin: 0;
   padding: 0;
